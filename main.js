@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 let inputArr = process.argv.slice(2);
 let fs = require("fs");
 let path = require("path");
@@ -38,6 +40,43 @@ switch (command) {
 
 function treeFn(dirPath) {
     console.log("Tree command Implemented for ", dirPath);
+    if (dirPath == undefined) {
+        let currDir = process.cwd();
+        treeHelper(currDir, "");
+        return;
+    } else {
+        //check of the path exist
+        let doesExist = fs.existsSync(dirPath);
+        if (doesExist) {
+            
+            treeHelper(dirPath, "");
+         
+        } else {
+            console.log("Kindly enter the Correct Path");
+            return;
+        }
+    }
+} 
+
+function treeHelper(dirPath, indent) {
+    //base condition - if no path 
+    
+    //is file or folder 
+    //If its a folder check inside it if its a file print it 
+    let isFile = fs.lstatSync(dirPath).isFile();
+
+    if(isFile){
+       let fileName =  path.basename(dirPath);
+       console.log(indent + "├──" + fileName)
+    } else{
+        let dirName = path.basename(dirPath)
+        console.log(indent + "└──" + dirName);
+        let children = fs.readdirSync(dirPath); 
+        for(let i=0;i<children.length;i++){
+          let childPath =  path.join(dirPath,children[i]);
+            treeHelper(childPath);
+        }
+    }
 
 }
 
@@ -54,7 +93,7 @@ function organizeFn(dirPath) {
     // copy/cut files to that organized directory 
     let destPath;
     if (dirPath == undefined) {
-        console.log("Kindly enter the Path");
+        destPath = process.cwd(); 
         return;
     } else {
         //check of the path exist
